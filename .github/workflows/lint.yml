@@ -1,0 +1,26 @@
+name: Lint
+
+on:
+  pull_request:
+    types: [opened, synchronize]
+    branches:
+      - main
+
+concurrency: lint-${{ github.base_ref }}
+
+jobs:
+  lint:
+    name: "Lint"
+    runs-on: ubuntu-latest
+    defaults:
+      run:
+        shell: bash
+    steps:
+      - name: "Code Checkout"
+        uses: actions/checkout@v4
+
+      - name: Setup mise
+        uses: jdx/mise-action@v2
+
+      - name: "Lint"
+        run: ./scripts/lint.sh

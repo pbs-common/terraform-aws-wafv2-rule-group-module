@@ -1,0 +1,28 @@
+name: Validate
+
+on:
+  pull_request:
+    types: [opened, synchronize]
+    branches:
+      - main
+
+concurrency: validate-${{ github.base_ref }}
+
+jobs:
+  validate:
+    name: "Validate"
+    runs-on: ubuntu-latest
+    defaults:
+      run:
+        shell: bash
+    steps:
+      - name: "Checkout code"
+        uses: actions/checkout@v4
+
+      - name: Setup mise
+        uses: jdx/mise-action@v2
+
+      - name: "Validate Module"
+        run: ./scripts/validate.sh
+        env:
+          AWS_DEFAULT_REGION: us-east-1

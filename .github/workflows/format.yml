@@ -1,0 +1,33 @@
+name: Format
+
+on:
+  pull_request:
+    types: [opened, synchronize]
+    branches:
+      - main
+
+concurrency: format-${{ github.base_ref }}
+
+jobs:
+  format:
+    name: "Format"
+    runs-on: ubuntu-latest
+    defaults:
+      run:
+        shell: bash
+    steps:
+      - name: "Code Checkout"
+        uses: actions/checkout@v4
+
+      - name: Setup mise
+        uses: jdx/mise-action@v2
+
+      - name: "Format"
+        run: ./scripts/format.sh
+
+      - name: "Confirm"
+        run: |
+          if [[ ! -z $(git status --porcelain) ]]; then
+            echo "Repo is not canonically formatted. Run ./scripts/format.sh"
+            exit 1
+          fi
