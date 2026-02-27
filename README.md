@@ -7,7 +7,7 @@
 Use this URL for the source of the module. See the usage examples below for more details.
 
 ```hcl
-github.com/pbs/terraform-aws-wafv2-rule-group-module?ref=0.0.1
+github.com/pbs/terraform-aws-wafv2-rule-group-module?ref=x.y.z
 ```
 
 ### Alternative Installation Methods
@@ -35,7 +35,7 @@ Integrate this module like so:
 
 ```hcl
 module "wafv2_rule_group" {
-  source = "github.com/pbs/terraform-aws-wafv2-rule-group-module?ref=0.0.1"
+  source = "github.com/pbs/terraform-aws-wafv2-rule-group-module?ref=x.y.z"
 
   scope    = "REGIONAL"
   capacity = 200
@@ -90,7 +90,7 @@ module "wafv2_rule_group" {
 If this repo is added as a subtree, then the version of the module should be
 close to the version shown here:
 
-`0.0.1`
+`x.y.z`
 
 Note, however that subtrees can be altered as desired within repositories.
 
@@ -135,6 +135,7 @@ No modules.
 | <a name="input_capacity"></a> [capacity](#input\_capacity) | Total WCU (Web ACL Capacity Units) budget for the rule group.<br/>Must be >= the sum of all rules WCU cost.<br/>Approximate WCU costs: ip\_set\_ref=1, byte\_match=10, geo\_match=1,<br/>regex\_match=50, rate\_based=2, or/and/not add nested costs. | `number` | n/a | yes |
 | <a name="input_environment"></a> [environment](#input\_environment) | Environment (sharedtools, dev, staging, qa, prod) | `string` | n/a | yes |
 | <a name="input_organization"></a> [organization](#input\_organization) | Organization using this module. Used to prefix tags so that they are easily identified as being from your organization | `string` | n/a | yes |
+| <a name="input_owner"></a> [owner](#input\_owner) | Tag used to group resources according to owner | `string` | n/a | yes |
 | <a name="input_product"></a> [product](#input\_product) | Tag used to group resources according to product | `string` | n/a | yes |
 | <a name="input_repo"></a> [repo](#input\_repo) | Tag used to point to the repo using this module | `string` | n/a | yes |
 | <a name="input_scope"></a> [scope](#input\_scope) | WAFv2 scope.<br/>  REGIONAL   — ALBs, API Gateway, AppSync (deploy in any region).<br/>  CLOUDFRONT — CloudFront distributions (must deploy in us-east-1). | `string` | n/a | yes |
