@@ -7,7 +7,7 @@
 Use this URL for the source of the module. See the usage examples below for more details.
 
 ```hcl
-github.com/pbs/terraform-aws-wafv2-rule-group-module?ref=0.0.2
+github.com/pbs/terraform-aws-wafv2-rule-group-module?ref=x.y.z
 ```
 
 ### Alternative Installation Methods
@@ -35,7 +35,7 @@ Integrate this module like so:
 
 ```hcl
 module "wafv2_rule_group" {
-  source = "github.com/pbs/terraform-aws-wafv2-rule-group-module?ref=0.0.2"
+  source = "github.com/pbs/terraform-aws-wafv2-rule-group-module?ref=x.y.z"
 
   scope    = "REGIONAL"
   capacity = 200
@@ -90,7 +90,7 @@ module "wafv2_rule_group" {
 If this repo is added as a subtree, then the version of the module should be
 close to the version shown here:
 
-`0.0.2`
+`x.y.z`
 
 Note, however that subtrees can be altered as desired within repositories.
 
@@ -132,17 +132,17 @@ No modules.
 
 | Name | Description | Type | Default | Required |
 |------|-------------|------|---------|:--------:|
-| <a name="input_capacity"></a> [capacity](#input\_capacity) | Total WCU (Web ACL Capacity Units) budget for the rule group.<br/>Must be >= the sum of all rules WCU cost.<br/>Approximate WCU costs: ip\_set\_ref=1, byte\_match=10, geo\_match=1,<br/>regex\_match=50, rate\_based=2, or/and/not add nested costs. | `number` | n/a | yes |
 | <a name="input_environment"></a> [environment](#input\_environment) | Environment (sharedtools, dev, staging, qa, prod) | `string` | n/a | yes |
 | <a name="input_organization"></a> [organization](#input\_organization) | Organization using this module. Used to prefix tags so that they are easily identified as being from your organization | `string` | n/a | yes |
 | <a name="input_owner"></a> [owner](#input\_owner) | Tag used to group resources according to owner | `string` | n/a | yes |
 | <a name="input_product"></a> [product](#input\_product) | Tag used to group resources according to product | `string` | n/a | yes |
 | <a name="input_repo"></a> [repo](#input\_repo) | Tag used to point to the repo using this module | `string` | n/a | yes |
-| <a name="input_scope"></a> [scope](#input\_scope) | WAFv2 scope.<br/>  REGIONAL   — ALBs, API Gateway, AppSync (deploy in any region).<br/>  CLOUDFRONT — CloudFront distributions (must deploy in us-east-1). | `string` | n/a | yes |
+| <a name="input_capacity"></a> [capacity](#input\_capacity) | Total WCU (Web ACL Capacity Units) budget for the rule group.<br/>Must be >= the sum of all rules WCU cost.<br/>Approximate WCU costs: ip\_set\_ref=1, byte\_match=10, geo\_match=1,<br/>regex\_match=50, rate\_based=2, or/and/not add nested costs. | `number` | `500` | no |
 | <a name="input_ip_sets"></a> [ip\_sets](#input\_ip\_sets) | Map of IP sets to create. The map key is a reference handle used in rule<br/>definitions (ip\_set\_ref.key, or\_statements[*].ip\_set\_ref\_key,<br/>rate\_based.scope\_down.ip\_set\_ref\_key).<br/><br/>Attributes:<br/>  description        — human-readable description<br/>  ip\_address\_version — IPV4 or IPV6 (default: IPV4)<br/>  addresses          — list of CIDR notation strings | <pre>map(object({<br/>    description        = string<br/>    ip_address_version = optional(string, "IPV4")<br/>    addresses          = optional(list(string), [])<br/>  }))</pre> | `{}` | no |
 | <a name="input_name"></a> [name](#input\_name) | Name prefix applied to all resources. If null, defaults to var.product. | `string` | `null` | no |
 | <a name="input_regex_pattern_sets"></a> [regex\_pattern\_sets](#input\_regex\_pattern\_sets) | Map of regex pattern sets to create. The map key is a reference handle used in<br/>rule definitions (regex\_set\_ref.key).<br/><br/>Attributes:<br/>  description         — human-readable description<br/>  regular\_expressions — list of PCRE regex strings | <pre>map(object({<br/>    description         = string<br/>    regular_expressions = list(string)<br/>  }))</pre> | `{}` | no |
 | <a name="input_rules"></a> [rules](#input\_rules) | Ordered list of WAFv2 rules. Set exactly one statement type per rule.<br/><br/>Supported statement types:<br/>  ip\_set\_ref        — matches source IP against an IP set (key into var.ip\_sets)<br/>  byte\_match        — string match on a request field<br/>  geo\_match         — matches source country codes<br/>  regex\_match       — inline PCRE regex match on a request field<br/>  regex\_set\_ref     — regex pattern set match (key into var.regex\_pattern\_sets)<br/>  rate\_based        — rate-based with optional scope-down and forwarded-IP support<br/>  or\_statements     — OR of sub-statements (ip\_set\_ref\_key or byte\_match)<br/>  and\_not\_regex\_geo — AND(NOT(regex\_match), geo\_match) compound pattern<br/><br/>field\_to\_match.type options:<br/>  uri\_path, method, body, query\_string, all\_query\_arguments,<br/>  single\_header (+ field\_to\_match.name required),<br/>  single\_query\_argument (+ field\_to\_match.name required)<br/><br/>action options:             allow, block, count<br/>positional\_constraint:      EXACTLY, STARTS\_WITH, ENDS\_WITH, CONTAINS, CONTAINS\_WORD<br/>rate\_based.aggregate\_key\_type: IP, FORWARDED\_IP<br/>rate\_based.evaluation\_window\_sec: 60, 120, 300, 600 | <pre>list(object({<br/>    name     = string<br/>    priority = number<br/>    action   = string # allow | block | count<br/><br/>    ip_set_ref = optional(object({<br/>      key = string<br/>    }))<br/><br/>    byte_match = optional(object({<br/>      search_string         = string<br/>      positional_constraint = string<br/>      field_to_match = object({<br/>        type = string<br/>        name = optional(string)<br/>      })<br/>      text_transformations = optional(list(object({<br/>        priority = number<br/>        type     = string<br/>      })))<br/>    }))<br/><br/>    geo_match = optional(object({<br/>      country_codes = list(string)<br/>    }))<br/><br/>    regex_match = optional(object({<br/>      regex_string = string<br/>      field_to_match = object({<br/>        type = string<br/>        name = optional(string)<br/>      })<br/>      text_transformations = optional(list(object({<br/>        priority = number<br/>        type     = string<br/>      })))<br/>    }))<br/><br/>    regex_set_ref = optional(object({<br/>      key = string<br/>      field_to_match = object({<br/>        type = string<br/>        name = optional(string)<br/>      })<br/>      text_transformations = optional(list(object({<br/>        priority = number<br/>        type     = string<br/>      })))<br/>    }))<br/><br/>    rate_based = optional(object({<br/>      limit                 = number<br/>      evaluation_window_sec = optional(number, 300)<br/>      aggregate_key_type    = optional(string, "IP")<br/>      forwarded_ip_config = optional(object({<br/>        header_name       = string<br/>        fallback_behavior = optional(string, "MATCH")<br/>      }))<br/>      scope_down = optional(object({<br/>        ip_set_ref_key        = optional(string)<br/>        geo_country_codes     = optional(list(string))<br/>        not_geo_country_codes = optional(list(string))<br/>        byte_match = optional(object({<br/>          search_string         = string<br/>          positional_constraint = string<br/>          field_to_match = object({<br/>            type = string<br/>            name = optional(string)<br/>          })<br/>          text_transformations = optional(list(object({<br/>            priority = number<br/>            type     = string<br/>          })))<br/>        }))<br/>      }))<br/>    }))<br/><br/>    or_statements = optional(list(object({<br/>      ip_set_ref_key = optional(string)<br/>      byte_match = optional(object({<br/>        search_string         = string<br/>        positional_constraint = string<br/>        field_to_match = object({<br/>          type = string<br/>          name = optional(string)<br/>        })<br/>        text_transformations = optional(list(object({<br/>          priority = number<br/>          type     = string<br/>        })))<br/>      }))<br/>    })))<br/><br/>    and_not_regex_geo = optional(object({<br/>      regex_string = string<br/>      field_to_match = object({<br/>        type = string<br/>        name = optional(string)<br/>      })<br/>      text_transformations = optional(list(object({<br/>        priority = number<br/>        type     = string<br/>      })))<br/>      country_codes = list(string)<br/>    }))<br/><br/>    visibility_config = optional(object({<br/>      cloudwatch_metrics_enabled = optional(bool, true)<br/>      metric_name                = optional(string)<br/>      sampled_requests_enabled   = optional(bool, true)<br/>    }))<br/>  }))</pre> | `[]` | no |
+| <a name="input_scope"></a> [scope](#input\_scope) | WAFv2 scope.<br/>  REGIONAL   — ALBs, API Gateway, AppSync (deploy in any region).<br/>  CLOUDFRONT — CloudFront distributions (must deploy in us-east-1). | `string` | `"REGIONAL"` | no |
 | <a name="input_tags"></a> [tags](#input\_tags) | Extra tags | `map(string)` | `{}` | no |
 
 ## Outputs
