@@ -17,10 +17,10 @@ jobs:
         shell: bash
     steps:
       - name: "Code Checkout"
-        uses: actions/checkout@v4
+        uses: actions/checkout@v6
 
       - name: Setup mise
-        uses: jdx/mise-action@v2
+        uses: jdx/mise-action@v3
 
       - name: "Lint"
         run: ./scripts/lint.sh

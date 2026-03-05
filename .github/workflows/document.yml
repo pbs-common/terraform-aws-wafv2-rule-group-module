@@ -18,7 +18,7 @@ jobs:
         shell: bash
     steps:
       - name: "Code checkout"
-        uses: actions/checkout@v4
+        uses: actions/checkout@v6
 
       - name: "Checkout w/ gh"
         run: gh pr checkout ${{ github.event.pull_request.number }}
@@ -26,7 +26,7 @@ jobs:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
 
       - name: Setup mise
-        uses: jdx/mise-action@v2
+        uses: jdx/mise-action@v3
 
       - name: "Generate documentation"
         run: ./scripts/document.sh
