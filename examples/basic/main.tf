@@ -18,9 +18,9 @@ module "wafv2_rule_group" {
   rules = [
     # Block all blacklisted IPs (WCU: 1)
     {
-      name      = "block-blacklisted-ips"
-      priority  = 0
-      action    = "block"
+      name       = "block-blacklisted-ips"
+      priority   = 0
+      action     = "block"
       ip_set_ref = { key = "blacklist" }
     },
 
