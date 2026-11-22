@@ -90,13 +90,16 @@ variable "rules" {
       rate_based        — rate-based with optional scope-down and forwarded-IP support
       or_statements     — OR of sub-statements (ip_set_ref_key or byte_match)
       and_not_regex_geo — AND(NOT(regex_match), geo_match) compound pattern
+      not_regex_match   — NOT(regex_match): matches requests the regex does NOT match
+      and_statements    — AND of two or more sub-statements, in list order; each
+                          element sets exactly one of byte_match or regex_match
 
     field_to_match.type options:
       uri_path, method, body, query_string, all_query_arguments,
       single_header (+ field_to_match.name required),
       single_query_argument (+ field_to_match.name required)
 
-    action options:             allow, block, count
+    action options:             allow, block, count, challenge, captcha
     positional_constraint:      EXACTLY, STARTS_WITH, ENDS_WITH, CONTAINS, CONTAINS_WORD
     rate_based.aggregate_key_type: IP, FORWARDED_IP
     rate_based.evaluation_window_sec: 60, 120, 300, 600
@@ -105,7 +108,7 @@ variable "rules" {
   type = list(object({
     name     = string
     priority = number
-    action   = string # allow | block | count
+    action   = string # allow | block | count | challenge | captcha
 
     ip_set_ref = optional(object({
       key = string
@@ -208,6 +211,44 @@ variable "rules" {
       country_codes = list(string)
     }))
 
+    not_regex_match = optional(object({
+      regex_string = string
+      field_to_match = object({
+        type = string
+        name = optional(string)
+      })
+      text_transformations = optional(list(object({
+        priority = number
+        type     = string
+      })))
+    }))
+
+    and_statements = optional(list(object({
+      byte_match = optional(object({
+        search_string         = string
+        positional_constraint = string
+        field_to_match = object({
+          type = string
+          name = optional(string)
+        })
+        text_transformations = optional(list(object({
+          priority = number
+          type     = string
+        })))
+      }))
+      regex_match = optional(object({
+        regex_string = string
+        field_to_match = object({
+          type = string
+          name = optional(string)
+        })
+        text_transformations = optional(list(object({
+          priority = number
+          type     = string
+        })))
+      }))
+    })))
+
     visibility_config = optional(object({
       cloudwatch_metrics_enabled = optional(bool, true)
       metric_name                = optional(string)
@@ -218,7 +259,28 @@ variable "rules" {
   default = []
 
   validation {
-    condition     = alltrue([for r in var.rules : contains(["allow", "block", "count"], r.action)])
-    error_message = "rules[*].action must be one of: allow, block, count."
+    condition     = alltrue([for r in var.rules : contains(["allow", "block", "count", "challenge", "captcha"], r.action)])
+    error_message = "rules[*].action must be one of: allow, block, count, challenge, captcha."
+  }
+
+  validation {
+    condition = alltrue([for r in var.rules : length([for s in [
+      r.ip_set_ref, r.byte_match, r.geo_match, r.regex_match, r.regex_set_ref, r.rate_based,
+      r.or_statements, r.and_not_regex_geo, r.not_regex_match, r.and_statements,
+    ] : s if s != null]) == 1])
+    error_message = "Each rule must set exactly one statement type: ip_set_ref, byte_match, geo_match, regex_match, regex_set_ref, rate_based, or_statements, and_not_regex_geo, not_regex_match or and_statements."
+  }
+
+  validation {
+    condition     = alltrue([for r in var.rules : r.and_statements == null || length(r.and_statements) >= 2])
+    error_message = "rules[*].and_statements must hold at least two sub-statements."
+  }
+
+  validation {
+    condition = alltrue([
+      for s in flatten([for r in var.rules : r.and_statements if r.and_statements != null]) :
+      length([for m in [s.byte_match, s.regex_match] : m if m != null]) == 1
+    ])
+    error_message = "Each rules[*].and_statements element must set exactly one of byte_match or regex_match."
   }
 }

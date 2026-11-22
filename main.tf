@@ -455,6 +455,175 @@ resource "aws_wafv2_rule_group" "this" {
           }
         }
 
+        # not_regex_match ─────────────────────────────────────────────────────
+        dynamic "not_statement" {
+          for_each = rule.value.not_regex_match != null ? [rule.value.not_regex_match] : []
+          content {
+            statement {
+              regex_match_statement {
+                regex_string = not_statement.value.regex_string
+
+                field_to_match {
+                  dynamic "uri_path" {
+                    for_each = not_statement.value.field_to_match.type == "uri_path" ? [1] : []
+                    content {}
+                  }
+                  dynamic "method" {
+                    for_each = not_statement.value.field_to_match.type == "method" ? [1] : []
+                    content {}
+                  }
+                  dynamic "body" {
+                    for_each = not_statement.value.field_to_match.type == "body" ? [1] : []
+                    content {}
+                  }
+                  dynamic "query_string" {
+                    for_each = not_statement.value.field_to_match.type == "query_string" ? [1] : []
+                    content {}
+                  }
+                  dynamic "all_query_arguments" {
+                    for_each = not_statement.value.field_to_match.type == "all_query_arguments" ? [1] : []
+                    content {}
+                  }
+                  dynamic "single_header" {
+                    for_each = not_statement.value.field_to_match.type == "single_header" ? [1] : []
+                    content {
+                      name = not_statement.value.field_to_match.name
+                    }
+                  }
+                  dynamic "single_query_argument" {
+                    for_each = not_statement.value.field_to_match.type == "single_query_argument" ? [1] : []
+                    content {
+                      name = not_statement.value.field_to_match.name
+                    }
+                  }
+                }
+
+                dynamic "text_transformation" {
+                  for_each = not_statement.value.text_transformations != null ? not_statement.value.text_transformations : local.default_ttx
+                  content {
+                    priority = text_transformation.value.priority
+                    type     = text_transformation.value.type
+                  }
+                }
+              }
+            }
+          }
+        }
+
+        # and_statements ──────────────────────────────────────────────────────
+        dynamic "and_statement" {
+          for_each = rule.value.and_statements != null ? [rule.value.and_statements] : []
+          content {
+            dynamic "statement" {
+              for_each = and_statement.value
+              content {
+
+                dynamic "byte_match_statement" {
+                  for_each = statement.value.byte_match != null ? [statement.value.byte_match] : []
+                  content {
+                    search_string         = byte_match_statement.value.search_string
+                    positional_constraint = byte_match_statement.value.positional_constraint
+
+                    field_to_match {
+                      dynamic "uri_path" {
+                        for_each = byte_match_statement.value.field_to_match.type == "uri_path" ? [1] : []
+                        content {}
+                      }
+                      dynamic "method" {
+                        for_each = byte_match_statement.value.field_to_match.type == "method" ? [1] : []
+                        content {}
+                      }
+                      dynamic "body" {
+                        for_each = byte_match_statement.value.field_to_match.type == "body" ? [1] : []
+                        content {}
+                      }
+                      dynamic "query_string" {
+                        for_each = byte_match_statement.value.field_to_match.type == "query_string" ? [1] : []
+                        content {}
+                      }
+                      dynamic "all_query_arguments" {
+                        for_each = byte_match_statement.value.field_to_match.type == "all_query_arguments" ? [1] : []
+                        content {}
+                      }
+                      dynamic "single_header" {
+                        for_each = byte_match_statement.value.field_to_match.type == "single_header" ? [1] : []
+                        content {
+                          name = byte_match_statement.value.field_to_match.name
+                        }
+                      }
+                      dynamic "single_query_argument" {
+                        for_each = byte_match_statement.value.field_to_match.type == "single_query_argument" ? [1] : []
+                        content {
+                          name = byte_match_statement.value.field_to_match.name
+                        }
+                      }
+                    }
+
+                    dynamic "text_transformation" {
+                      for_each = byte_match_statement.value.text_transformations != null ? byte_match_statement.value.text_transformations : local.default_ttx
+                      content {
+                        priority = text_transformation.value.priority
+                        type     = text_transformation.value.type
+                      }
+                    }
+                  }
+                }
+
+                dynamic "regex_match_statement" {
+                  for_each = statement.value.regex_match != null ? [statement.value.regex_match] : []
+                  content {
+                    regex_string = regex_match_statement.value.regex_string
+
+                    field_to_match {
+                      dynamic "uri_path" {
+                        for_each = regex_match_statement.value.field_to_match.type == "uri_path" ? [1] : []
+                        content {}
+                      }
+                      dynamic "method" {
+                        for_each = regex_match_statement.value.field_to_match.type == "method" ? [1] : []
+                        content {}
+                      }
+                      dynamic "body" {
+                        for_each = regex_match_statement.value.field_to_match.type == "body" ? [1] : []
+                        content {}
+                      }
+                      dynamic "query_string" {
+                        for_each = regex_match_statement.value.field_to_match.type == "query_string" ? [1] : []
+                        content {}
+                      }
+                      dynamic "all_query_arguments" {
+                        for_each = regex_match_statement.value.field_to_match.type == "all_query_arguments" ? [1] : []
+                        content {}
+                      }
+                      dynamic "single_header" {
+                        for_each = regex_match_statement.value.field_to_match.type == "single_header" ? [1] : []
+                        content {
+                          name = regex_match_statement.value.field_to_match.name
+                        }
+                      }
+                      dynamic "single_query_argument" {
+                        for_each = regex_match_statement.value.field_to_match.type == "single_query_argument" ? [1] : []
+                        content {
+                          name = regex_match_statement.value.field_to_match.name
+                        }
+                      }
+                    }
+
+                    dynamic "text_transformation" {
+                      for_each = regex_match_statement.value.text_transformations != null ? regex_match_statement.value.text_transformations : local.default_ttx
+                      content {
+                        priority = text_transformation.value.priority
+                        type     = text_transformation.value.type
+                      }
+                    }
+                  }
+                }
+
+              }
+            }
+          }
+        }
+
       }
 
       # ── Action ─────────────────────────────────────────────────────────────
@@ -469,6 +638,14 @@ resource "aws_wafv2_rule_group" "this" {
         }
         dynamic "count" {
           for_each = rule.value.action == "count" ? [1] : []
+          content {}
+        }
+        dynamic "challenge" {
+          for_each = rule.value.action == "challenge" ? [1] : []
+          content {}
+        }
+        dynamic "captcha" {
+          for_each = rule.value.action == "captcha" ? [1] : []
           content {}
         }
       }
