@@ -30,6 +30,10 @@ Supported statement types per rule:
 - `rate_based` — rate limiting with optional forwarded-IP and scope-down
 - `or_statements` — OR of ip_set_ref / byte_match sub-statements
 - `and_not_regex_geo` — AND(NOT(regex), geo) compound pattern
+- `not_regex_match` — NOT(regex) on any request field
+- `and_statements` — AND of two or more byte_match / regex_match sub-statements, in order
+
+Each rule sets exactly one statement type. Rule actions: `allow`, `block`, `count`, `challenge`, `captcha`.
 
 Integrate this module like so:
 
